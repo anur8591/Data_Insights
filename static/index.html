@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/data-insights-logo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data_Insights</title>
+</head>
+
+
+<body>
+
+  <header>
+
+    <!-- Project Name / home link  -->
+    <a href="/" aria-label="Data_Insights home">Data_Insights</a>
+
+    <!-- Navigation link -->
+    <nav aria-label="Main navigation">
+      <button type="button" id="open-login">Login</button>
+      <button type="button" id="profile-button" aria-label="Profile" hidden>
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="32" fill="#5148be" />
+          <circle cx="32" cy="32" r="11" fill="#b8b5ff" />
+          <path d="M9 59c2-13 11-20 23-20s21 7 23 20" fill="#b8b5ff" />
+          </svg>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Login modal -->
+  <dialog id="login-dialog" aria-labelledby="login-title">
+    <button type="button" id="close-login" aria-label="Close">×</button>
+
+    <!-- Login card -->
+    <section id="login-view">
+      <h2 id="login-title">Log in</h2>
+      <p>Welcome to Data_Insights</p>
+
+      <button type="button">Continue with Google</button>
+      <p>Or continue with email</p>
+
+      <form>
+        <label for="login-email">Email address</label>
+        <input id="login-email" name="email" type="email" autocomplete="email" required />
+
+        <label for="login-password">Password</label>
+        <input id="login-password" name="password" type="password" autocomplete="current-password" required />
+
+        <button type="submit">Log in</button>
+      </form>
+
+      <p>
+        Don’t have an account?
+        <button type="button" id="open-signup">Sign up</button>
+      </p>
+    </section>
+
+    <!-- Sign-up card; hidden until the user selects Sign up -->
+    <section id="signup-view" aria-labelledby="signup-title" hidden>
+      <button type="button" id="back-to-login" aria-label="Back to login">←</button>
+
+      <h2 id="signup-title">Create your account</h2>
+      <p>Enter your details to sign up.</p>
+
+      <form>
+        <label for="first-name">First name</label>
+        <input id="first-name" name="firstName" type="text" autocomplete="given-name" required />
+
+        <label for="last-name">Last name</label>
+        <input id="last-name" name="lastName" type="text" autocomplete="family-name" required />
+
+        <label for="signup-email">Email address</label>
+        <input id="signup-email" name="email" type="email" autocomplete="email" required />
+
+        <label for="signup-password">Set password</label>
+        <input id="signup-password" name="password" type="password" minlength="8" pattern="(?=.*[A-Za-z])(?=.*[0-9]).{8,}" title="Use at least 8 characters, including a letter and a number" autocomplete="new-password" required />
+
+        <label for="phone">Phone number</label>
+        <input id="phone" name="phone" type="tel" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" title="Enter 10 digits without spaces or symbols." autocomplete="tel" required />
+
+        <button type="submit">Create account</button>
+      </form>
+    </section>
+  </dialog>
+
+  <script type="module" src="/src/main.ts"></script>
+
+</body>
+
+
+</html>

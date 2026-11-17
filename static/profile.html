@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/data-insights-logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile | Data_Insights</title>
+  </head>
+  <body>
+    <header>
+      <a href="/" aria-label="Data_Insights home">Data_Insights</a>
+      <nav aria-label="Main navigation">
+        <a href="/">Home</a>
+      </nav>
+    </header>
+
+    <main class="profile-main">
+      <section class="profile-card" aria-labelledby="profile-title">
+        <div class="profile-avatar" aria-hidden="true">
+          <svg viewBox="0 0 64 64">
+            <circle cx="32" cy="32" r="32" fill="#5148be" />
+            <circle cx="32" cy="23" r="11" fill="#b8b5ff" />
+            <path d="M9 59c2-13 11-20 23-20s21 7 23 20" fill="#b8b5ff" />
+          </svg>
+        </div>
+        <h1 id="profile-title">Your profile</h1>
+        <p>Signed in with this email address:</p>
+        <p id="profile-email" class="profile-email">Loading profile…</p>
+        <a class="home-link" href="/">Back to home</a>
+        <button type="button" id="logout-button">Log out</button>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
+
