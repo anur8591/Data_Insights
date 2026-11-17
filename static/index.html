@@ -115,42 +115,50 @@
     <dialog id="login-dialog" aria-labelledby="login-title">
       <button type="button" id="close-login" class="dialog-close" aria-label="Close">×</button>
       <section id="login-view">
-        <h2 id="login-title">Log in</h2>
-        <p>Welcome to Data_Insight</p>
-        <button type="button" class="google-placeholder">Continue with Google</button>
-        <p>Or continue with email</p>
-        <form>
+        <p class="section-kicker dialog-kicker">YOUR DATA WORKSPACE</p>
+        <h2 id="login-title">Welcome back</h2>
+        <p>Log in to continue your analysis work.</p>
+        <button type="button" class="google-placeholder" disabled>Google sign-in will be added later</button>
+        <p class="form-divider">Or continue with email</p>
+        <form id="login-form">
           <label for="login-email">Email address</label>
-          <input id="login-email" name="email" type="email" autocomplete="email" required />
+          <input id="login-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required />
           <label for="login-password">Password</label>
-          <input id="login-password" name="password" type="password" autocomplete="current-password" required />
+          <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required />
           <button type="submit" class="form-submit">Log in</button>
         </form>
-        <p>Don’t have an account? <button type="button" id="open-signup">Sign up</button></p>
+        <p class="demo-note">Prototype mode: login is not verified by a server yet.</p>
+        <p class="account-switch">New to Data_Insight? <button type="button" id="open-signup">Create an account</button></p>
       </section>
+
       <section id="signup-view" aria-labelledby="signup-title" hidden>
         <button type="button" id="back-to-login" aria-label="Back to login">←</button>
+        <p class="section-kicker dialog-kicker">GET STARTED</p>
         <h2 id="signup-title">Create your account</h2>
-        <p>Enter your details to sign up.</p>
+        <p>Set up your profile to keep your analysis work together.</p>
         <form id="signup-form">
-          <label for="first-name">First name</label>
-          <input id="first-name" name="firstName" type="text" autocomplete="given-name" required />
-          <label for="last-name">Last name</label>
-          <input id="last-name" name="lastName" type="text" autocomplete="family-name" required />
+          <div class="form-row">
+            <div><label for="first-name">First name</label><input id="first-name" name="firstName" type="text" autocomplete="given-name" required /></div>
+            <div><label for="last-name">Last name</label><input id="last-name" name="lastName" type="text" autocomplete="family-name" required /></div>
+          </div>
           <label for="signup-email">Email address</label>
-          <input id="signup-email" name="email" type="email" autocomplete="email" required />
+          <input id="signup-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required />
           <label for="signup-password">Set password</label>
           <input id="signup-password" name="password" type="password" minlength="8" pattern="(?=.*[A-Za-z])(?=.*[0-9]).{8,}" title="Use at least 8 characters, including a letter and a number" autocomplete="new-password" required />
+          <label for="confirm-password">Confirm password</label>
+          <input id="confirm-password" name="confirmPassword" type="password" autocomplete="new-password" required />
           <label for="phone">Phone number</label>
           <input id="phone" name="phone" type="tel" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" title="Enter 10 digits without spaces or symbols." autocomplete="tel" required />
           <button type="submit" class="form-submit">Create account</button>
         </form>
         <p id="signup-message" class="status-message" role="status"></p>
+        <p class="demo-note">Prototype mode: profile details stay in this browser tab; no password is saved.</p>
       </section>
     </dialog>
 
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
+
 
 

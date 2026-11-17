@@ -3,23 +3,43 @@ import { analyzeDataset } from "./features/eda/analyzeDataset";
 import { readDataset } from "./features/eda/readDataset";
 import type { ColumnInsight, DataCell, Dataset, DatasetInsight } from "./features/eda/types";
 
-// Demo account controls. Real account verification will be handled by FastAPI later.
+interface AnalysisHistoryRecord {
+  email: string;
+  fileName: string;
+  format: string;
+  analyzedAt: string;
+  rowCount: number;
+  columnCount: number;
+  missingCells: number;
+  duplicateRows: number;
+}
+
+const PROFILE_EMAIL_KEY = "profileEmail";
+const PROFILE_FIRST_NAME_KEY = "profileFirstName";
+const PROFILE_LAST_NAME_KEY = "profileLastName";
+const PROFILE_PHONE_KEY = "profilePhone";
+const ANALYSIS_HISTORY_KEY = "analysisHistory";
+
+// The current account flow is a frontend preview; FastAPI will replace this demo state.
 const openLoginButton = document.querySelector<HTMLButtonElement>("#open-login");
 const profileButton = document.querySelector<HTMLButtonElement>("#profile-button");
 const loginDialog = document.querySelector<HTMLDialogElement>("#login-dialog");
 const closeLoginButton = document.querySelector<HTMLButtonElement>("#close-login");
 const loginView = document.querySelector<HTMLElement>("#login-view");
 const signupView = document.querySelector<HTMLElement>("#signup-view");
-const loginForm = document.querySelector<HTMLFormElement>("#login-view form");
+const loginForm = document.querySelector<HTMLFormElement>("#login-form");
 const loginEmailInput = document.querySelector<HTMLInputElement>("#login-email");
 const openSignupButton = document.querySelector<HTMLButtonElement>("#open-signup");
 const backToLoginButton = document.querySelector<HTMLButtonElement>("#back-to-login");
 
-if (openLoginButton && profileButton) {
-  const isSignedIn = sessionStorage.getItem("profileEmail") !== null;
+function updateAccountNavigation(): void {
+  if (!openLoginButton || !profileButton) return;
+  const isSignedIn = sessionStorage.getItem(PROFILE_EMAIL_KEY) !== null;
   openLoginButton.hidden = isSignedIn;
   profileButton.hidden = !isSignedIn;
 }
+
+updateAccountNavigation();
 
 if (
   openLoginButton && profileButton && loginDialog && closeLoginButton &&
@@ -43,9 +63,12 @@ if (
 
   loginForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    sessionStorage.setItem("profileEmail", loginEmailInput.value.trim());
-    openLoginButton.hidden = true;
-    profileButton.hidden = false;
+    const email = loginEmailInput.value.trim().toLowerCase();
+    const previousEmail = sessionStorage.getItem(PROFILE_EMAIL_KEY)?.toLowerCase();
+
+    if (previousEmail !== email) clearDemoProfile();
+    sessionStorage.setItem(PROFILE_EMAIL_KEY, email);
+    updateAccountNavigation();
     loginDialog.close();
     loginForm.reset();
   });
@@ -63,28 +86,150 @@ if (
 
 const signupForm = document.querySelector<HTMLFormElement>("#signup-form");
 const signupMessage = document.querySelector<HTMLElement>("#signup-message");
-if (signupForm && signupMessage) {
+const signupEmailInput = document.querySelector<HTMLInputElement>("#signup-email");
+const firstNameInput = document.querySelector<HTMLInputElement>("#first-name");
+const lastNameInput = document.querySelector<HTMLInputElement>("#last-name");
+const phoneInput = document.querySelector<HTMLInputElement>("#phone");
+const signupPasswordInput = document.querySelector<HTMLInputElement>("#signup-password");
+const confirmPasswordInput = document.querySelector<HTMLInputElement>("#confirm-password");
+
+if (
+  signupForm && signupMessage && signupEmailInput && firstNameInput &&
+  lastNameInput && phoneInput && signupPasswordInput && confirmPasswordInput
+) {
+  const validatePasswordMatch = () => {
+    const matches = confirmPasswordInput.value === signupPasswordInput.value;
+    confirmPasswordInput.setCustomValidity(matches ? "" : "Passwords do not match.");
+  };
+
+  signupPasswordInput.addEventListener("input", validatePasswordMatch);
+  confirmPasswordInput.addEventListener("input", validatePasswordMatch);
+
   signupForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    signupMessage.textContent =
-      "This sign-up screen is a demo; account creation will be connected to FastAPI later.";
+    validatePasswordMatch();
+    if (!signupForm.reportValidity()) {
+      signupMessage.textContent = "Check the highlighted fields and try again.";
+      return;
+    }
+
+    // Keep profile details only for this tab. Never store the password.
+    sessionStorage.setItem(PROFILE_FIRST_NAME_KEY, firstNameInput.value.trim());
+    sessionStorage.setItem(PROFILE_LAST_NAME_KEY, lastNameInput.value.trim());
+    sessionStorage.setItem(PROFILE_EMAIL_KEY, signupEmailInput.value.trim().toLowerCase());
+    sessionStorage.setItem(PROFILE_PHONE_KEY, phoneInput.value.trim());
+    sessionStorage.removeItem(ANALYSIS_HISTORY_KEY);
+    window.location.assign("/profile.html");
   });
 }
+
 const logoutButton = document.querySelector<HTMLButtonElement>("#logout-button");
 if (logoutButton) {
   logoutButton.addEventListener("click", () => {
-    sessionStorage.removeItem("profileEmail");
+    clearDemoProfile();
     window.location.assign("/");
   });
 }
 
-const profileEmailElement = document.querySelector<HTMLElement>("#profile-email");
-if (profileEmailElement) {
-  profileEmailElement.textContent = sessionStorage.getItem("profileEmail") ??
-    "No demo sign-in email found in this tab. Return home to log in.";
+function clearDemoProfile(): void {
+  sessionStorage.removeItem(PROFILE_EMAIL_KEY);
+  sessionStorage.removeItem(PROFILE_FIRST_NAME_KEY);
+  sessionStorage.removeItem(PROFILE_LAST_NAME_KEY);
+  sessionStorage.removeItem(PROFILE_PHONE_KEY);
+  sessionStorage.removeItem(ANALYSIS_HISTORY_KEY);
 }
 
-// Browser-only dataset inspection. This module does not send files to FastAPI.
+function readAnalysisHistory(): AnalysisHistoryRecord[] {
+  try {
+    const value: unknown = JSON.parse(sessionStorage.getItem(ANALYSIS_HISTORY_KEY) ?? "[]");
+    return Array.isArray(value) ? value.filter(isAnalysisHistoryRecord) : [];
+  } catch {
+    return [];
+  }
+}
+
+function isAnalysisHistoryRecord(value: unknown): value is AnalysisHistoryRecord {
+  if (typeof value !== "object" || value === null) return false;
+  const record = value as Record<string, unknown>;
+  return typeof record.email === "string" && typeof record.fileName === "string" &&
+    typeof record.format === "string" && typeof record.analyzedAt === "string" &&
+    typeof record.rowCount === "number" && typeof record.columnCount === "number" &&
+    typeof record.missingCells === "number" && typeof record.duplicateRows === "number";
+}
+
+function saveAnalysisHistory(dataset: Dataset, insight: DatasetInsight): void {
+  const email = sessionStorage.getItem(PROFILE_EMAIL_KEY);
+  if (!email) return;
+
+  const history = readAnalysisHistory();
+  history.unshift({
+    email,
+    fileName: dataset.fileName,
+    format: dataset.format,
+    analyzedAt: new Date().toISOString(),
+    rowCount: insight.rowCount,
+    columnCount: insight.columnCount,
+    missingCells: insight.missingCells,
+    duplicateRows: insight.duplicateRows,
+  });
+  sessionStorage.setItem(ANALYSIS_HISTORY_KEY, JSON.stringify(history.slice(0, 30)));
+}
+
+// Populate the profile page from the temporary browser-tab profile.
+const profileEmailElement = document.querySelector<HTMLElement>("#profile-email");
+if (profileEmailElement) {
+  const email = sessionStorage.getItem(PROFILE_EMAIL_KEY);
+  const firstName = sessionStorage.getItem(PROFILE_FIRST_NAME_KEY) ?? "";
+  const lastName = sessionStorage.getItem(PROFILE_LAST_NAME_KEY) ?? "";
+  const fullName = [firstName, lastName].filter(Boolean).join(" ");
+  profileEmailElement.textContent = email ?? "No demo sign-in email found in this tab.";
+
+  const profileNameElement = document.querySelector<HTMLElement>("#profile-name");
+  if (profileNameElement) profileNameElement.textContent = fullName || "Your profile";
+  setText("#profile-first-name", firstName || "—");
+  setText("#profile-last-name", lastName || "—");
+  setText("#profile-email-detail", email || "—");
+  setText("#profile-phone", sessionStorage.getItem(PROFILE_PHONE_KEY) || "—");
+  renderProfileHistory(email);
+}
+
+function setText(selector: string, value: string): void {
+  const element = document.querySelector<HTMLElement>(selector);
+  if (element) element.textContent = value;
+}
+
+function renderProfileHistory(email: string | null): void {
+  const emptyState = document.querySelector<HTMLElement>("#analysis-empty");
+  const tableWrap = document.querySelector<HTMLElement>("#history-table-wrap");
+  const historyBody = document.querySelector<HTMLTableSectionElement>("#analysis-history-body");
+  if (!emptyState || !tableWrap || !historyBody) return;
+
+  const history = readAnalysisHistory().filter((record) => record.email === email);
+  setText("#analysis-count", history.length.toLocaleString());
+  setText("#dataset-count", new Set(history.map((record) => record.fileName)).size.toLocaleString());
+  emptyState.hidden = history.length > 0;
+  tableWrap.hidden = history.length === 0;
+
+  const fragment = document.createDocumentFragment();
+  for (const record of history) {
+    const row = document.createElement("tr");
+    addHistoryCell(row, record.fileName);
+    addHistoryCell(row, new Date(record.analyzedAt).toLocaleString());
+    addHistoryCell(row, `${record.rowCount.toLocaleString()} × ${record.columnCount.toLocaleString()}`);
+    addHistoryCell(row, record.missingCells.toLocaleString());
+    addHistoryCell(row, record.duplicateRows.toLocaleString());
+    fragment.append(row);
+  }
+  historyBody.replaceChildren(fragment);
+}
+
+function addHistoryCell(row: HTMLTableRowElement, text: string): void {
+  const cell = document.createElement("td");
+  cell.textContent = text;
+  row.append(cell);
+}
+
+// Browser-only dataset inspection. The file and its summary are not sent to FastAPI.
 const fileInput = document.querySelector<HTMLInputElement>("#dataset-file");
 const dropZone = document.querySelector<HTMLElement>("#drop-zone");
 const selectedFileName = document.querySelector<HTMLElement>("#selected-file-name");
@@ -142,6 +287,7 @@ if (
       const dataset = await readDataset(selectedFile);
       const insight = analyzeDataset(dataset);
       renderInsights(dataset, insight);
+      saveAnalysisHistory(dataset, insight);
       insightsPanel.hidden = false;
       showMessage("Analysis complete. Your original file was not changed.", "success");
     } catch (error) {
@@ -191,7 +337,6 @@ function renderMetrics(insight: DatasetInsight, container: HTMLElement): void {
 
 function renderColumns(columns: ColumnInsight[], body: HTMLTableSectionElement): void {
   const fragment = document.createDocumentFragment();
-
   for (const column of columns) {
     const row = document.createElement("tr");
     appendTextCell(row, column.name, "column-name");
@@ -206,7 +351,6 @@ function renderColumns(columns: ColumnInsight[], body: HTMLTableSectionElement):
     appendTextCell(row, column.unique.toLocaleString());
     fragment.append(row);
   }
-
   body.replaceChildren(fragment);
 }
 
@@ -224,9 +368,7 @@ function renderPreview(
   const fragment = document.createDocumentFragment();
   for (const values of previewRows) {
     const row = document.createElement("tr");
-    for (const value of values) {
-      appendTextCell(row, formatCell(value), value === null ? "cell-missing" : "");
-    }
+    for (const value of values) appendTextCell(row, formatCell(value), value === null ? "cell-missing" : "");
     fragment.append(row);
   }
   body.replaceChildren(fragment);
@@ -252,4 +394,3 @@ function formatCell(value: DataCell): string {
   if (value instanceof Date) return value.toLocaleString();
   return String(value);
 }
-

@@ -2,37 +2,89 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/data-insights-logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101827" />
+    <link rel="icon" type="image/svg+xml" href="/data-insights-logo.svg" />
     <title>Profile | Data_Insight</title>
   </head>
   <body>
-    <header>
-      <a href="/" aria-label="Data_Insight home">Data_Insight</a>
-      <nav aria-label="Main navigation">
-        <a href="/">Home</a>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Data_Insight home">
+        <img src="/data-insights-logo.svg" alt="" />
+        <span>Data_Insight</span>
+      </a>
+      <nav class="header-actions" aria-label="Profile actions">
+        <a class="profile-home-link" href="/">EDA workspace</a>
+        <button type="button" id="logout-button">Log out</button>
       </nav>
     </header>
 
-    <main class="profile-main">
-      <section class="profile-card" aria-labelledby="profile-title">
-        <div class="profile-avatar" aria-hidden="true">
-          <svg viewBox="0 0 64 64">
-            <circle cx="32" cy="32" r="32" fill="#5148be" />
-            <circle cx="32" cy="23" r="11" fill="#b8b5ff" />
-            <path d="M9 59c2-13 11-20 23-20s21 7 23 20" fill="#b8b5ff" />
-          </svg>
+    <main class="profile-page">
+      <div class="profile-page-heading">
+        <div>
+          <p class="section-kicker">YOUR ACCOUNT</p>
+          <h1>Profile &amp; activity</h1>
+          <p>Keep your account details and analysis history together.</p>
         </div>
-        <h1 id="profile-title">Your profile</h1>
-        <p>Signed in with this email address:</p>
-        <p id="profile-email" class="profile-email">Loading profile…</p>
-        <a class="home-link" href="/">Back to home</a>
-        <button type="button" id="logout-button">Log out</button>
+        <span class="prototype-badge"><span></span> FRONTEND PREVIEW</span>
+      </div>
+
+      <div class="profile-layout">
+        <section class="profile-card identity-card" aria-labelledby="identity-title">
+          <div class="profile-avatar" aria-hidden="true">
+            <svg viewBox="0 0 64 64">
+              <circle cx="32" cy="32" r="32" fill="#5148be" />
+              <circle cx="32" cy="23" r="11" fill="#b8b5ff" />
+              <path d="M9 59c2-13 11-20 23-20s21 7 23 20" fill="#b8b5ff" />
+            </svg>
+          </div>
+          <h2 id="profile-name">Your profile</h2>
+          <p id="profile-email" class="profile-email">Loading profile…</p>
+          <span class="profile-status"><span></span> DEMO SESSION</span>
+          <p class="profile-storage-note">This preview keeps profile details in the current browser tab.</p>
+        </section>
+
+        <section class="profile-card details-card" aria-labelledby="identity-title">
+          <div class="card-heading profile-card-heading">
+            <div><p class="section-kicker">PERSONAL DETAILS</p><h2 id="identity-title">Account information</h2></div>
+          </div>
+          <dl class="profile-details">
+            <div><dt>First name</dt><dd id="profile-first-name">—</dd></div>
+            <div><dt>Last name</dt><dd id="profile-last-name">—</dd></div>
+            <div><dt>Email address</dt><dd id="profile-email-detail">—</dd></div>
+            <div><dt>Phone number</dt><dd id="profile-phone">—</dd></div>
+          </dl>
+        </section>
+      </div>
+
+      <section class="profile-card activity-section" aria-labelledby="activity-title">
+        <div class="card-heading profile-card-heading">
+          <div><p class="section-kicker">YOUR WORK</p><h2 id="activity-title">Analysis activity</h2></div>
+          <a class="profile-home-link" href="/">Analyze a dataset <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="activity-metrics">
+          <article class="activity-metric"><span>Analyses in this tab</span><strong id="analysis-count">0</strong></article>
+          <article class="activity-metric"><span>Different datasets</span><strong id="dataset-count">0</strong></article>
+        </div>
+        <div class="history-heading">
+          <h3>Recent analyses</h3>
+          <span id="history-caption" class="table-caption">Saved for this browser tab only</span>
+        </div>
+        <div id="analysis-empty" class="history-empty">
+          <div class="empty-icon" aria-hidden="true">↗</div>
+          <strong>No analyses yet</strong>
+          <p>After you generate insights, a summary of each dataset will appear here.</p>
+          <a href="/">Upload your first dataset</a>
+        </div>
+        <div id="history-table-wrap" class="table-scroll" hidden>
+          <table class="history-table">
+            <thead><tr><th scope="col">Dataset</th><th scope="col">Analyzed</th><th scope="col">Rows × columns</th><th scope="col">Missing</th><th scope="col">Duplicates</th></tr></thead>
+            <tbody id="analysis-history-body"></tbody>
+          </table>
+        </div>
       </section>
     </main>
 
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
-
-
